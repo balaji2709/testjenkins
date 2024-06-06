@@ -14,17 +14,8 @@ import com.example.dubaipolica.service.ElkService;
 @ComponentScan({"com.example"})
 public class Demo1Application {
 
-	public static void main(String[] args) throws IOException, SQLException {
-		SpringApplication.run(Demo1Application.class, args);
-		ElkService elkService = new ElkService();
-		
-//        Connection oracleConnection = elkService.createSqlConnection();
-        try {
-        	elkService.main(args, null);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		
-	}
+	public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
 
 }
