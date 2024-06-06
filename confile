@@ -1,0 +1,244 @@
+
+pipeline {
+    agent any
+    tools {
+        maven "maven"
+    }
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "10.10.14.222:8081"
+        NEXUS_REPOSITORY = "repository-example"
+        NEXUS_CREDENTIAL_ID = "nexus-credentials"
+        GIT_URL = 'https://gitlab.com/qauntexa/elasticbranch.git'
+    }
+    stages {
+        stage("Clone code from CS") {
+            steps {
+                script {
+                withCredentials([usernamePassword(credentialsId: 'e5ad8fdb-e7e4-49fe-91ef-a0cd75f28aaa', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                sh "rm -rf elasticbranch" 
+                sh "git clone ${GIT_URL}"
+}
+                }
+            }
+        }
+        stage("Maven Build") {
+            steps {
+                script {
+                    sh "mvn package -DskipTests=true"
+                }
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+    steps {
+        script {
+            pom = readMavenPom file: "pom.xml"
+            filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+            echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+            artifactPath = filesByGlob[0].path
+            artifactExists = fileExists artifactPath
+            if (artifactExists) {
+                echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}-SNAPSHOT";
+                nexusArtifactUploader(
+                    nexusVersion: NEXUS_VERSION,
+                    protocol: NEXUS_PROTOCOL,
+                    nexusUrl: NEXUS_URL,
+                    groupId: pom.groupId,
+                    version: "${pom.version}-SNAPSHOT", // Append -SNAPSHOT suffix
+                    repository: NEXUS_REPOSITORY,
+                    credentialsId: NEXUS_CREDENTIAL_ID,
+                    artifacts: [
+                        [artifactId: pom.artifactId,
+                        classifier: '',
+                        file: artifactPath,
+                        type: pom.packaging],
+                        [artifactId: pom.artifactId,
+                        classifier: '',
+                        file: "pom.xml",
+                        type: "pom"]
+                    ]
+                )
+            } else {
+                error "*** File: ${artifactPath}, could not be found";
+            }
+        }
+    }
+}
+    }
+}
+
+
+
+
+//for windows based
+
+
+
+pipeline {
+    agent any
+    tools {
+        maven "Maven"
+    }
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "localhost:8082" // Adjusted URL format for Windows
+        NEXUS_REPOSITORY = "repository-example"
+        NEXUS_CREDENTIAL_ID = "nexus-user-credentials"
+        GIT_URL = 'https://gitlab.com/qauntexa/elasticbranch.git'
+        formattedDate = new Date().format("yyyy-MM-dd_HH-mm-ss")
+        BUILD_VERSION_COUNTER = 1
+    }
+    stages {
+        stage("Clone code from CS") {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'fd165349-58f6-4502-aea6-98c36b3d5c89', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        // Check if the directory exists
+                         dirExists = fileExists("elasticbranch")
+                        if (dirExists) {
+                            // Remove the directory if it exists
+                            bat "rmdir /s /q elasticbranch"
+                        } else {
+                            echo "Directory 'elasticbranch' does not exist, skipping removal."
+                        }
+                        // Clone the repository
+                        bat "git clone ${GIT_URL}" // Use 'bat' instead of 'sh' for Windows
+                    }
+                }
+            }
+        }
+        stage("Maven Build") {
+            steps {
+                script {
+                    // Navigate to the cloned repository directory
+                    dir("elasticbranch") {
+                        // Execute Maven command
+                        bat "mvn package -DskipTests=true" // Use 'bat' instead of 'sh' for Windows
+                    }
+                }
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+            steps {
+                script {
+                    dir("elasticbranch") {
+                    pom = readMavenPom file: "pom.xml"
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory}"
+                    artifactPath = filesByGlob[0].path
+                    artifactExists = fileExists artifactPath
+                    if (artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}-${BUILD_VERSION_COUNTER}-${formattedDate}-SNAPSHOT";
+                        env.BUILD_VERSION_COUNTER++
+                        nexusArtifactUploader(
+                            nexusVersion: NEXUS_VERSION,
+                            protocol: NEXUS_PROTOCOL,
+                            nexusUrl: NEXUS_URL,
+                            groupId: pom.groupId,
+                            version: "${pom.version}-${BUILD_VERSION_COUNTER}-${formattedDate}-SNAPSHOT",
+                            repository: NEXUS_REPOSITORY,
+                            credentialsId: NEXUS_CREDENTIAL_ID,
+                            artifacts: [
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: artifactPath,
+                                type: pom.packaging]
+                            ]
+                        )
+                    } else {
+                        error "*** File: ${artifactPath}, could not be found";
+                    }
+                }
+            }
+            }
+        }
+    }
+}
+
+
+//for linux command
+
+
+pipeline {
+    agent any
+    tools {
+        maven "maven"
+    }
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "10.10.14.222:8081" // Adjusted URL format for Windows
+        NEXUS_REPOSITORY = "repository-example"
+        NEXUS_CREDENTIAL_ID = "nexus-user-credentials"
+        GIT_URL = 'https://gitlab.com/qauntexa/elasticbranch.git'
+        formattedDate = new Date().format("yyyy-MM-dd_HH-mm-ss")
+        BUILD_VERSION_COUNTER = 1
+    }
+    stages {
+        stage("Clone code from CS") {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'e5ad8fdb-e7e4-49fe-91ef-a0cd75f28aaa', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        // Check if the directory exists
+                         dirExists = fileExists("elasticbranch")
+                        if (dirExists) {
+                            // Remove the directory if it exists
+                            sh "rm -rf elasticbranch"
+                        } else {
+                            echo "Directory 'elasticbranch' does not exist, skipping removal."
+                        }
+                        // Clone the repository
+                        sh "git clone ${GIT_URL}" // Use 'sh' instead of 'sh' for Windows
+                    }
+                }
+            }
+        }
+        stage("Maven Build") {
+            steps {
+                script {
+                    // Navigate to the cloned repository directory
+                    dir("elasticbranch") {
+                        // Execute Maven command
+                        sh "mvn package -DskipTests=true" // Use 'sh' instead of 'sh' for Windows
+                    }
+                }
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+            steps {
+                script {
+                    dir("elasticbranch") {
+                    pom = readMavenPom file: "pom.xml"
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory}"
+                    artifactPath = filesByGlob[0].path
+                    artifactExists = fileExists artifactPath
+                    if (artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}-${BUILD_VERSION_COUNTER}-${formattedDate}-SNAPSHOT";
+                        env.BUILD_VERSION_COUNTER++
+                        nexusArtifactUploader(
+                            nexusVersion: NEXUS_VERSION,
+                            protocol: NEXUS_PROTOCOL,
+                            nexusUrl: NEXUS_URL,
+                            groupId: pom.groupId,
+                            version: "${pom.version}-${BUILD_VERSION_COUNTER}-${formattedDate}-SNAPSHOT",
+                            repository: NEXUS_REPOSITORY,
+                            credentialsId: NEXUS_CREDENTIAL_ID,
+                            artifacts: [
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: artifactPath,
+                                type: pom.packaging]
+                            ]
+                        )
+                    } else {
+                        error "*** File: ${artifactPath}, could not be found";
+                    }
+                }
+            }
+            }
+        }
+    }
+}
