@@ -1,34 +1,34 @@
-// package com.example.dubaipolica.service;
+package com.example.dubaipolica.service;
 
-// import java.io.IOException;
-// import java.sql.Connection;
-// import java.sql.DriverManager;
-// import java.sql.ResultSet;
-// import java.sql.SQLException;
-// import java.sql.Statement;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-// import org.apache.http.Header;
-// import org.apache.http.HttpHeaders;
-// import org.apache.http.HttpHost;
-// import org.apache.http.auth.AuthScope;
-// import org.apache.http.auth.UsernamePasswordCredentials;
-// import org.apache.http.impl.client.BasicCredentialsProvider;
-// import org.apache.http.message.BasicHeader;
-// import org.elasticsearch.ElasticsearchStatusException;
-// import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-// import org.elasticsearch.action.index.IndexRequest;
-// import org.elasticsearch.action.index.IndexResponse;
-// import org.elasticsearch.action.update.UpdateRequest;
-// import org.elasticsearch.action.update.UpdateResponse;
-// import org.elasticsearch.client.RequestOptions;
-// import org.elasticsearch.client.RestClient;
-// import org.elasticsearch.client.RestClientBuilder;
-// import org.elasticsearch.client.RestHighLevelClient;
-// import org.elasticsearch.client.indices.CreateIndexRequest;
-// import org.elasticsearch.common.settings.Settings;
-// import org.elasticsearch.common.xcontent.XContentType;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentType;
 
-// public class ElkService {
+public class ElkService {
 
 // 	private static final String ES_HOST = "172.24.120.123";
 // 	private static final int ES_PORT = 9200;
@@ -198,4 +198,4 @@
 // 		}
 // 	}
 
-// }
+}
